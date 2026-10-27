@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Serve ./www with Apache httpd in Podman for openshift-days-ops-showroom.
+# Serve ./www with Apache httpd in Podman for zt-ocp-ops-app-management.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

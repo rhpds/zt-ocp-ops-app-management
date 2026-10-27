@@ -9,7 +9,7 @@ view_switcher:
   default_mode: split
 
 antora:
-  name: openshift-days-ops-track
+  name: zt-ocp-ops-app-management
   version: main
 
 tabs:
@@ -20,12 +20,6 @@ tabs:
     path: /wetty
     port: 443
 
-  - name: RHACS
-    url: 'https://central-stackrox.${DOMAIN}'
-
-  - name: ArgoCD
-    url: 'https://openshift-gitops-server-openshift-gitops.${DOMAIN}'
-
-  - name: Developer Hub
-    url: 'https://backstage-developer-hub-backstage.${DOMAIN}'
-
+  - name: Terminal 2
+    path: /wetty
+    port: 443

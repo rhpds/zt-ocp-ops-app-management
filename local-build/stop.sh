@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Stop the openshift-days-ops-showroom Podman httpd container started by serve.sh.
+# Stop the zt-ocp-ops-app-management Podman httpd container started by serve.sh.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

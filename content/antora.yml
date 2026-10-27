@@ -1,21 +1,16 @@
-name: openshift-days-ops-track
-title: OpenShift Ops Day Roadshow
+name: zt-ocp-ops-app-management
+title: OpenShift Application Management
 version: main
 nav:
   - modules/ROOT/nav.adoc
 
 asciidoc:
   attributes:
-    lab_name: "OpenShift Ops Day Roadshow"
+    lab_name: OpenShift Application Management
     release-version: main
     page-pagination: true
-    guid: my-guid
-    ssh_user: lab-user
-    ssh_password: ''
-    ssh_command: ''
-    ols_azure_url: 'https://llm-gpt4-lightspeed.openai.azure.com/'
     page-links:
-    - url: https://docs.redhat.com/en/documentation/openshift_container_platform/4.20
-      text: OpenShift Docs
-    - url: https://access.redhat.com
-      text: Red Hat Customer Portal
+      - url: https://docs.redhat.com/en/documentation/openshift_container_platform/4.20
+        text: OpenShift Docs
+      - url: https://access.redhat.com
+        text: Red Hat Customer Portal

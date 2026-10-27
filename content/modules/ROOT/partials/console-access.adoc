@@ -1,9 +1,24 @@
 .Console Access
 [%collapsible]
 ====
+ifdef::openshift_cluster_admin_username[]
 * *Username:* `{openshift_cluster_admin_username}`
+endif::[]
+ifndef::openshift_cluster_admin_username[]
+* *Username:* Use the username supplied with your lab environment.
+endif::[]
+ifdef::openshift_cluster_admin_password[]
 * *Password:* `{openshift_cluster_admin_password}`
+endif::[]
+ifndef::openshift_cluster_admin_password[]
+* *Password:* Use the password supplied with your lab environment.
+endif::[]
+ifdef::openshift_cluster_console_url[]
 * *Console:* {openshift_cluster_console_url}[window=blank]
+endif::[]
+ifndef::openshift_cluster_console_url[]
+* *Console:* Use the console link supplied with your lab environment.
+endif::[]
 
 TIP: We recommend using the **OCP Console** tab within this Showroom interface as it is easier to follow along.
 ====

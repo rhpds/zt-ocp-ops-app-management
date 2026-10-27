@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build the openshift-days-ops-showroom static site with Antora (writes to ./www).
+# Build the zt-ocp-ops-app-management static site with Antora (writes to ./www).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

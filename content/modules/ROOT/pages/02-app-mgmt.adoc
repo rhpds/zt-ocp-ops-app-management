@@ -3,27 +3,31 @@
 
 == Getting Started
 
-=== Module Overview
+=== Lab Overview
 
-**Duration:** 15-20 minutes +
+**Duration:** 20-30 minutes +
 **Format:** Hands-on +
 **Audience:** Platform Engineers, Operations Teams
 
 include::partial$console-access.adoc[]
 
-In this module, you'll deploy an application, expose it to the outside world, scale it for capacity, see how OpenShift self-heals when things fail, and configure health checks. This is the core ops workflow for managing workloads on OpenShift.
+Complete xref:index.adoc[Lab Setup] first to sign in to the console and verify terminal access.
+
+In this lab, you'll deploy an application, expose it to the outside world, scale it for capacity, see how OpenShift self-heals when things fail, and configure health checks. Use the **OCP Console** and **Terminal** tabs throughout the exercises.
 
 === Learning Objectives
 
-By the end of this module, you will be able to:
+By the end of this lab, you will be able to:
 
 * Deploy an application from a container image
 * Expose it via a Route with TLS
 * Scale horizontally and observe the behavior
 * Understand OpenShift self-healing (pod recreation)
 * Configure liveness and readiness probes
+* Roll back an application deployment
 * Use PodDisruptionBudgets to protect availability during maintenance
 
+[#deploy-inspect]
 == Deploy & Inspect
 
 === Deploy an Application
@@ -35,7 +39,7 @@ Create a project and deploy a web server:
 oc new-project app-management
 ----
 
-Now deploy the WeatherNow application using the OpenShift Console. WeatherNow is a simple httpd-based container used as a test workload throughout the ops track.
+Now deploy the WeatherNow application using the OpenShift Console. WeatherNow is a simple httpd-based container used throughout this lab.
 
 . In the top-right corner of the console, click the **+** (Add) button and select **Container images**. Under **Select project**, make sure **app-management** is selected:
 +
@@ -104,6 +108,7 @@ The service has a `ClusterIP` - this is only reachable from inside the cluster. 
 
 TIP: You can also see this in the console at **Networking > Services** (project: `app-management`) - click `weathernow` to see the service details, endpoints, and backing pods.
 
+[#expose-scale]
 == Expose & Scale
 
 === Create a Route
@@ -113,7 +118,7 @@ A Route connects an external URL to your service through the OpenShift router (H
 
 [source,bash,role="execute"]
 ----
-oc create route edge weathernow --service=weathernow
+oc create route edge weathernow --service=weathernow -n app-management
 ----
 
 The `edge` termination means TLS is handled by the router - traffic is encrypted between the user and the router, then plain HTTP to the pod.
@@ -139,7 +144,7 @@ One pod isn't enough for production. Scale to 3 replicas:
 
 [source,bash,role="execute"]
 ----
-oc scale deployment weathernow --replicas=3
+oc scale deployment weathernow --replicas=3 -n app-management
 ----
 
 Now switch to the **OCP Console** tab: **Workloads -> Pods** (project: `app-management`). Watch the new pods appear in real-time with status transitions (Pending → ContainerCreating → Running).
@@ -163,11 +168,19 @@ oc get endpointslice -l kubernetes.io/service-name=weathernow -n app-management
 
 Each pod's IP is listed as an endpoint. When a new pod starts, it's automatically added. When a pod dies, it's removed.
 
+[#resilience]
 == Resilience
 
 === Self-Healing
 
 When a pod dies, OpenShift automatically replaces it. Let's see this in action.
+
+Optionally, open **Terminal 2** and run the following command manually to watch pod changes while you continue in **Terminal**. Press **Ctrl+C** in **Terminal 2** when you are done watching.
+
+[source,bash]
+----
+oc get pods -n app-management -w
+----
 
 First, delete a pod:
 
@@ -355,11 +368,12 @@ NOTE: This may take a minute to complete. Only press **Ctrl+C** if it has been r
 
 The deployment is back to the working version. In production, `oc rollout undo` is often the fastest way to recover from a bad release - faster than fixing the code and redeploying.
 
+[#disruption-budgets]
 == Pod Disruption Budgets
 
-A PodDisruptionBudget (PDB) tells OpenShift: _"always keep at least N pods running, even during maintenance."_ When you drain a node for an upgrade or repair, the eviction API checks PDBs before removing pods. If evicting a pod would drop below the minimum, the drain blocks until it's safe.
+A PodDisruptionBudget (PDB) limits voluntary disruptions by specifying how many pods must remain available. When you drain a node for an upgrade or repair, the eviction API checks PDBs before removing pods. If evicting a pod would drop below the minimum, the drain blocks until it's safe.
 
-This matters to you because a misconfigured PDB is the #1 cause of stalled cluster upgrades - the upgrade process drains nodes one at a time, and a single bad PDB can block the entire upgrade indefinitely.
+A misconfigured PDB can stall cluster maintenance because the upgrade process drains nodes and waits for workloads to allow eviction.
 
 === Create a PDB
 
@@ -397,9 +411,11 @@ weathernow   2               N/A               1                     5s
 
 `ALLOWED DISRUPTIONS: 1` means one pod can be safely evicted right now (3 running - 2 minimum = 1 spare).
 
-=== See the PDB in Action
+=== Observe the Disruption Budget
 
 Delete a pod and watch the PDB counter:
+
+NOTE: Direct pod deletion bypasses a PDB. This step shows how the budget changes as availability changes; the node drain in the next step demonstrates enforcement through the eviction API.
 
 [source,bash,role="execute"]
 ----
@@ -472,13 +488,14 @@ oc get pdb weathernow -n app-management
 
 **Takeaway:** When a cluster upgrade stalls, run `oc get pdb -A` and look for `ALLOWED DISRUPTIONS: 0`. If `minAvailable` equals the replica count, lower it or switch to `maxUnavailable: 1`. A PDB that blocks all evictions doesn't protect your app - it blocks your entire cluster from being maintained.
 
+[#cleanup-summary]
 == Cleanup & Summary
 
 === Summary
 
 You completed the core application lifecycle on OpenShift:
 
-* **Deploy** - `oc new-app` creates deployment + service in one command
+* **Deploy** - the console's **Container images** workflow creates a deployment and service
 * **Inspect** - `oc describe pod` and `oc logs` for diagnostics
 * **Expose** - `oc create route edge` adds TLS-terminated external access
 * **Scale** - `oc scale` adjusts replicas, service auto-balances
@@ -508,4 +525,10 @@ oc delete namespace app-management --ignore-not-found
 echo "Cleanup complete"
 ----
 
-NOTE: This waits for the namespace to be fully deleted before returning. This ensures the next module can recreate it cleanly.
+NOTE: This waits for the namespace to be fully deleted before returning. All application resources created in this lab are removed, so you can repeat the lab from a clean project.
+
+== Additional Resources
+
+* link:https://docs.redhat.com/en/documentation/openshift_container_platform/4.20[OpenShift Documentation, window=blank]
+* link:https://developers.redhat.com/learn/openshift[OpenShift Learning, window=blank]
+* link:https://kubernetes.io/docs/concepts/workloads/pods/disruptions/[Pod Disruptions and Disruption Budgets, window=blank]

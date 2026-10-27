@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Show whether the openshift-days-ops-showroom httpd container is running.
+# Show whether the zt-ocp-ops-app-management httpd container is running.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
